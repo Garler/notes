@@ -3,13 +3,14 @@ package ru.netology
 fun main() {
     NoteService.add(Note(title = "title 1", text = "text 1"))
     NoteService.add(Note(title = "title 2", text = "text 2"))
-    println( NoteService.createComment(2, Comment(message = "comment 1")))
+    println(NoteService.createComment(2, Comment(message = "comment 1")))
     NoteService.createComment(2, Comment(message = "comment 2"))
-    NoteService.deleteNote(1)
+    //NoteService.deleteNote(1)
     //NoteService.restoreComment(2, 1)
     NoteService.editComment(2, 2, Comment(2, "new text"))
     println(NoteService.get())
     NoteService.print()
+    println(NoteService.getComments(2))
 }
 
 class NoteNotFoundException(message: String) : RuntimeException(message)
@@ -96,31 +97,24 @@ object NoteService {
         throw NoteNotFoundException("Заметка с Id $noteId не найдена")
     }
 
-    fun get(): Any {
+    fun get(): List<Note> {
         if (notes.isNotEmpty()) {
             return notes
         }
         throw NoteNotFoundException("Заметки не найдены")
     }
 
-    fun getById(noteId: Int): Any {
+    fun getById(noteId: Int): Note {
         if (!notes.none { it.noteId == noteId }) {
             return notes[notes.indexOf(notes.find { it.noteId == noteId })]
         }
         throw NoteNotFoundException("Заметки не найдены")
     }
 
-    fun getComments(noteId: Int, commentId: Int): Comment {
+    fun getComments(noteId: Int): List<Comment> {
         for (note in notes)
             if (note.noteId == noteId) {
-                for (comment in note.comments)
-                    if (comment.commentId == commentId) {
-                        if (!comment.delete) {
-                            return comment
-                        }
-                        throw NoteNotFoundException("Комментарий с Id $commentId был удален")
-                    }
-                throw NoteNotFoundException("Комментарий с Id $commentId не найден")
+                return note.comments.filter { !it.delete }
             }
         throw NoteNotFoundException("Заметка с Id $noteId не найдена")
     }
@@ -140,11 +134,13 @@ object NoteService {
             }
         throw NoteNotFoundException("Заметка с Id $noteId не найдена")
     }
+
     fun clear() {
         notes = mutableListOf<Note>()
         lastNoteId = 0
         lastCommentId = 0
     }
+
     fun print() {
         for (note in notes) {
             println(note)

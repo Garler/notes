@@ -112,9 +112,10 @@ class NoteServiceTest {
     fun get_expected() {
         NoteService.get()
     }
+
     @Test
     fun getById() {
-        val note = Note(1,title = "title 1", text = "text 1")
+        val note = Note(1, title = "title 1", text = "text 1")
         NoteService.add(note)
         val result = NoteService.getById(1)
         assertEquals(note, result)
@@ -128,20 +129,17 @@ class NoteServiceTest {
     @Test
     fun getComments() {
         val note = Note(title = "title 1", text = "text 1")
-        val comment = Comment(message = "comment 1")
+        val comment = Comment(1, message = "comment 1")
         NoteService.add(note)
         NoteService.createComment(1, comment)
-        val result = NoteService.getComments(1, 1)
-        assertEquals(1, result.commentId)
+        val expected = listOf(comment)
+        val result = NoteService.getComments(1)
+        assertEquals(expected, result)
     }
 
     @Test(expected = NoteNotFoundException::class)
     fun getComments_expected() {
-        val note = Note(title = "title 1", text = "text 1")
-        val comment = Comment(message = "comment 1", delete = true)
-        NoteService.add(note)
-        NoteService.createComment(1, comment)
-        NoteService.getComments(1, 1)
+        NoteService.getComments(1)
     }
 
     @Test
